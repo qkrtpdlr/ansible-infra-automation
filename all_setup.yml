@@ -1,0 +1,16 @@
+---
+# all_setup.yml
+# 모든 서버에 공통 패키지를 설치하는 Playbook
+
+- hosts: all
+  become: true
+    
+  tasks:
+    - name: Install necessary packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - epel-release
+        - wget
+        - vim

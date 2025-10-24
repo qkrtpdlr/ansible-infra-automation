@@ -1,0 +1,29 @@
+# Ansible
+*.retry
+*.log
+
+# SSH Keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+Thumbs.db
