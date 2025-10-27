@@ -1,29 +1,145 @@
+# ============================================
 # Ansible
-*.retry
-*.log
+# ============================================
+# Ansible vault password files
+.vault_pass
+.vault_password
+vault_pass.txt
+*vault*.txt
 
+# Ansible retry files
+*.retry
+
+# Ansible logs
+*.log
+ansible.log
+
+# Inventory backup files
+inventory.bak
+inventory.backup
+hosts.bak
+
+# ============================================
 # SSH Keys
+# ============================================
+# Private keys
 *.pem
 *.key
 id_rsa
-id_rsa.pub
+id_dsa
+id_ecdsa
+id_ed25519
+*.ppk
 
-# Temporary files
+# Known hosts
+known_hosts
+
+# ============================================
+# Python (Ansible uses Python)
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+env/
+.venv
+*.egg-info/
+dist/
+build/
+
+# ============================================
+# Editor/IDE
+# ============================================
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Vim
 *.swp
 *.swo
 *~
-.DS_Store
 
-# Virtual environments
-venv/
-.venv/
-env/
-
-# IDE
-.vscode/
-.idea/
+# Sublime Text
 *.sublime-project
 *.sublime-workspace
 
-# OS
+# ============================================
+# OS Generated Files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Logs and Temporary Files
+# ============================================
+logs/
+*.log
+log/
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ============================================
+# Environment Variables
+# ============================================
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# Sensitive Data
+# ============================================
+# Configuration files with real values
+ansible_prod.cfg
+production.ini
+secrets.yml
+credentials.yml
+
+# Database dumps
+*.sql
+*.dump
+
+# ============================================
+# Vagrant
+# ============================================
+.vagrant/
+*.box
+
+# ============================================
+# VirtualBox
+# ============================================
+*.vdi
+*.vmdk
+*.vbox
+*.vbox-prev
+
+# ============================================
+# Testing
+# ============================================
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.tox/
