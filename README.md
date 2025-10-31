@@ -699,8 +699,5 @@ firewall-cmd --reload
 
 ---
 
-## 👨‍💻 Contact
-
 - **Email**: rlagudfo1223@gmail.com
 - **GitHub**: https://github.com/qkrtpdlr
-- **프로젝트 저장소**: https://github.com/qkrtpdlr/ansible-infra-automation
