@@ -1,0 +1,87 @@
+---
+# WordPress installation and configuration tasks
+
+- name: Download WordPress
+  get_url:
+    url: https://wordpress.org/latest.tar.gz
+    dest: /tmp/wordpress.tar.gz
+    mode: '0644'
+
+- name: Extract WordPress archive
+  unarchive:
+    src: /tmp/wordpress.tar.gz
+    dest: /tmp/
+    remote_src: yes
+    creates: /tmp/wordpress
+
+- name: Copy WordPress files to document root
+  synchronize:
+    src: /tmp/wordpress/
+    dest: /srv/web/wordpress/
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Set WordPress directory ownership
+  file:
+    path: /srv/web/wordpress
+    state: directory
+    owner: apache
+    group: apache
+    recurse: yes
+
+- name: Create WordPress configuration from template
+  template:
+    src: wp-config.php.j2
+    dest: /srv/web/wordpress/wp-config.php
+    owner: apache
+    group: apache
+    mode: '0640'
+
+- name: Create WordPress uploads directory
+  file:
+    path: /srv/web/wordpress/wp-content/uploads
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: Generate WordPress salt keys
+  uri:
+    url: https://api.wordpress.org/secret-key/1.1/salt/
+    return_content: yes
+  register: wp_salt_keys
+  until: wp_salt_keys.status == 200
+  retries: 3
+  delay: 2
+
+- name: Save WordPress salt keys to file
+  copy:
+    content: "{{ wp_salt_keys.content }}"
+    dest: /srv/web/wordpress/wp-salt-keys.php
+    owner: apache
+    group: apache
+    mode: '0640'
+
+- name: Wait for database to be ready
+  wait_for:
+    host: "{{ db_host }}"
+    port: "{{ db_port }}"
+    state: started
+    timeout: 30
+
+- name: Test database connection
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+    login_host: "{{ db_host }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+  delegate_to: localhost
+  become: no
+
+- name: Clean up temporary files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/wordpress.tar.gz
+    - /tmp/wordpress

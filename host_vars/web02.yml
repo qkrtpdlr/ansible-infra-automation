@@ -1,0 +1,15 @@
+---
+# Variables specific to WEB02 (Static web server)
+
+wordpress_enabled: no
+
+# VirtualHost configuration
+vhosts:
+  - name: web02-main
+    port: 80
+    document_root: /srv/web/web02
+    server_name: www.example.com
+  - name: web02-alt
+    port: 8080
+    document_root: /srv/web/web02
+    server_name: web02.example.com

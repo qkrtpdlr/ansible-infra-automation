@@ -1,0 +1,111 @@
+---
+# Load Balancer (HAProxy + BIND DNS) 설정
+# 실행: ansible-playbook lb_setup.yml
+
+- name: Setup Load Balancer
+  hosts: lb
+  become: yes
+  
+  tasks:
+    - name: Install HAProxy
+      yum:
+        name: haproxy
+        state: present
+
+    - name: Create HAProxy configuration
+      template:
+        src: ../template/haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        owner: root
+        group: root
+        mode: '0644'
+        validate: 'haproxy -c -f %s'
+      notify: restart haproxy
+
+    - name: Configure SELinux for HAProxy
+      seboolean:
+        name: haproxy_connect_any
+        state: yes
+        persistent: yes
+
+    - name: Install BIND DNS packages
+      yum:
+        name:
+          - bind
+          - bind-utils
+        state: present
+
+    - name: Create BIND configuration
+      template:
+        src: ../template/named.conf.j2
+        dest: /etc/named.conf
+        owner: root
+        group: named
+        mode: '0640'
+        validate: 'named-checkconf %s'
+      notify: restart named
+
+    - name: Create zone file directory
+      file:
+        path: /var/named/zones
+        state: directory
+        owner: root
+        group: named
+        mode: '0750'
+
+    - name: Create DNS zone file
+      template:
+        src: ../template/db.example.com.j2
+        dest: /var/named/zones/db.example.com
+        owner: root
+        group: named
+        mode: '0640'
+        validate: 'named-checkzone example.com %s'
+      notify: restart named
+
+    - name: Open HAProxy ports in firewall
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop:
+        - 80/tcp
+        - 8404/tcp
+
+    - name: Open DNS port in firewall
+      firewalld:
+        service: dns
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: Enable and start HAProxy
+      systemd:
+        name: haproxy
+        state: started
+        enabled: yes
+
+    - name: Enable and start BIND DNS
+      systemd:
+        name: named
+        state: started
+        enabled: yes
+
+    - name: Display HAProxy stats URL
+      debug:
+        msg:
+          - "HAProxy Stats: http://{{ ansible_host }}:8404/stats"
+          - "Username: admin"
+          - "Password: admin123"
+
+  handlers:
+    - name: restart haproxy
+      systemd:
+        name: haproxy
+        state: restarted
+
+    - name: restart named
+      systemd:
+        name: named
+        state: restarted

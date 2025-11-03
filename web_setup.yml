@@ -1,0 +1,48 @@
+---
+# Web servers setup playbook (WEB01 & WEB02)
+# Configures Apache, NFS client, and WordPress (WEB01 only)
+# Execute: ansible-playbook web_setup.yml
+
+- name: Setup Web Servers
+  hosts: webservers
+  become: yes
+  
+  pre_tasks:
+    - name: Update system packages
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+    
+    - name: Wait for NFS server to be ready
+      wait_for:
+        host: "{{ nfs_server }}"
+        port: 2049
+        timeout: 60
+  
+  roles:
+    - apache
+    - nfs_client
+  
+  post_tasks:
+    - name: Display web server URLs
+      debug:
+        msg:
+          - "Web Server: http://{{ ansible_host }}"
+          - "Alt Port: http://{{ ansible_host }}:8080"
+
+- name: Setup WordPress on WEB01
+  hosts: web01
+  become: yes
+  
+  roles:
+    - wordpress
+  
+  post_tasks:
+    - name: Display WordPress information
+      debug:
+        msg:
+          - "WordPress URL: http://{{ ansible_host }}/wordpress"
+          - "Complete installation via web browser"
+          - "Database: {{ db_name }}"
+          - "DB Host: {{ db_host }}"

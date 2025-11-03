@@ -1,0 +1,19 @@
+---
+# Variables specific to WEB01 (WordPress server)
+
+wordpress_enabled: yes
+wordpress_site_title: "Fresh Chicken WordPress"
+wordpress_admin_user: admin
+wordpress_admin_password: "Admin@123"
+wordpress_admin_email: admin@example.com
+
+# VirtualHost configuration
+vhosts:
+  - name: wordpress
+    port: 80
+    document_root: /srv/web/wordpress
+    server_name: wordpress.example.com
+  - name: web01
+    port: 8080
+    document_root: /srv/web/web01
+    server_name: web01.example.com

@@ -1,0 +1,56 @@
+---
+# BIND DNS server installation and configuration tasks
+
+- name: Install BIND DNS packages
+  yum:
+    name:
+      - bind
+      - bind-utils
+    state: present
+
+- name: Create BIND configuration from template
+  template:
+    src: named.conf.j2
+    dest: /etc/named.conf
+    owner: root
+    group: named
+    mode: '0640'
+    validate: 'named-checkconf %s'
+  notify: restart named
+
+- name: Create zone file directory
+  file:
+    path: /var/named/zones
+    state: directory
+    owner: root
+    group: named
+    mode: '0750'
+
+- name: Create forward zone file from template
+  template:
+    src: db.example.com.j2
+    dest: /var/named/zones/db.{{ domain_name }}
+    owner: root
+    group: named
+    mode: '0640'
+    validate: 'named-checkzone {{ domain_name }} %s'
+  notify: restart named
+
+- name: Open DNS port in firewall
+  firewalld:
+    service: dns
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Enable and start BIND service
+  systemd:
+    name: named
+    state: started
+    enabled: yes
+
+- name: Wait for DNS to be ready
+  wait_for:
+    port: 53
+    delay: 2
+    timeout: 30

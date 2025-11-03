@@ -1,0 +1,35 @@
+---
+# Global variables for all hosts
+
+# Domain configuration
+domain_name: example.com
+dns_server: 192.168.56.11
+
+# Network configuration
+network_subnet: 192.168.56.0/24
+nat_network: 10.0.2.0/24
+
+# NFS configuration
+nfs_server: 192.168.56.30
+nfs_export_path: /srv/nfs/shared
+nfs_mount_path: /srv/web/shared
+
+# Database configuration
+db_host: 192.168.56.40
+db_port: 3306
+db_name: wordpress
+db_user: wpuser
+db_password: "SecurePassword123!"
+
+# Web server configuration
+web_port: 80
+web_alt_port: 8080
+
+# HAProxy configuration
+haproxy_stats_user: admin
+haproxy_stats_password: admin123
+haproxy_stats_port: 8404
+
+# Security
+selinux_state: enforcing
+firewalld_state: enabled

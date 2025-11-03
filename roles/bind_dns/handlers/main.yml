@@ -1,0 +1,12 @@
+---
+# BIND DNS handlers
+
+- name: restart named
+  systemd:
+    name: named
+    state: restarted
+
+- name: reload named
+  systemd:
+    name: named
+    state: reloaded

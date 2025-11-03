@@ -1,0 +1,10 @@
+---
+# NFS server handlers
+
+- name: restart nfs
+  systemd:
+    name: nfs-server
+    state: restarted
+
+- name: reload nfs
+  command: exportfs -ra

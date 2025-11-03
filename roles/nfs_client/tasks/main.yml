@@ -1,0 +1,48 @@
+---
+# NFS client installation and configuration tasks
+
+- name: Install NFS client packages
+  yum:
+    name:
+      - nfs-utils
+    state: present
+
+- name: Create NFS mount point
+  file:
+    path: "{{ nfs_mount_path }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: Mount NFS share
+  mount:
+    path: "{{ nfs_mount_path }}"
+    src: "{{ nfs_server }}:{{ nfs_export_path }}"
+    fstype: nfs
+    opts: defaults,_netdev
+    state: mounted
+
+- name: Verify NFS mount
+  command: df -h {{ nfs_mount_path }}
+  register: nfs_mount_check
+  changed_when: false
+
+- name: Display NFS mount status
+  debug:
+    var: nfs_mount_check.stdout_lines
+
+- name: Test NFS write permissions
+  file:
+    path: "{{ nfs_mount_path }}/.ansible_test"
+    state: touch
+    owner: apache
+    group: apache
+  register: nfs_write_test
+  ignore_errors: yes
+
+- name: Remove test file
+  file:
+    path: "{{ nfs_mount_path }}/.ansible_test"
+    state: absent
+  when: nfs_write_test is succeeded

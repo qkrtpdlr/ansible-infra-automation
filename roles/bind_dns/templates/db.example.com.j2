@@ -1,0 +1,24 @@
+$TTL    604800
+@       IN      SOA     ns1.{{ domain_name }}. admin.{{ domain_name }}. (
+                              2024103101         ; Serial
+                              604800             ; Refresh
+                              86400              ; Retry
+                              2419200            ; Expire
+                              604800 )           ; Negative Cache TTL
+;
+; Name servers
+@       IN      NS      ns1.{{ domain_name }}.
+
+; A records
+ns1                     IN      A       {{ hostvars['lb01']['ansible_host'] }}
+lb01                    IN      A       {{ hostvars['lb01']['ansible_host'] }}
+www                     IN      A       {{ hostvars['lb01']['ansible_host'] }}
+wordpress               IN      A       {{ hostvars['lb01']['ansible_host'] }}
+
+; Web servers
+web01                   IN      A       {{ hostvars['web01']['ansible_host'] }}
+web02                   IN      A       {{ hostvars['web02']['ansible_host'] }}
+
+; Infrastructure servers
+storage01               IN      A       {{ hostvars['storage01']['ansible_host'] }}
+db-central01            IN      A       {{ hostvars['db-central01']['ansible_host'] }}

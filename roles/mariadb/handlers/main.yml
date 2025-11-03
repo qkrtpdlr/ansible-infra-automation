@@ -1,0 +1,12 @@
+---
+# MariaDB handlers
+
+- name: restart mariadb
+  systemd:
+    name: mariadb
+    state: restarted
+
+- name: reload mariadb
+  systemd:
+    name: mariadb
+    state: reloaded

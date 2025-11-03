@@ -1,0 +1,62 @@
+---
+# NFS server installation and configuration tasks
+
+- name: Install NFS server packages
+  yum:
+    name:
+      - nfs-utils
+      - rpcbind
+    state: present
+
+- name: Create NFS export directory
+  file:
+    path: "{{ nfs_export_path }}"
+    state: directory
+    owner: nfsnobody
+    group: nfsnobody
+    mode: '0755'
+
+- name: Configure NFS exports
+  template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nfs
+
+- name: Enable and start rpcbind service
+  systemd:
+    name: rpcbind
+    state: started
+    enabled: yes
+
+- name: Enable and start NFS server service
+  systemd:
+    name: nfs-server
+    state: started
+    enabled: yes
+
+- name: Open NFS ports in firewall
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop:
+    - nfs
+    - rpc-bind
+    - mountd
+
+- name: Export NFS shares
+  command: exportfs -ra
+  changed_when: false
+
+- name: Verify NFS exports
+  command: exportfs -v
+  register: nfs_exports
+  changed_when: false
+
+- name: Display NFS exports
+  debug:
+    var: nfs_exports.stdout_lines
