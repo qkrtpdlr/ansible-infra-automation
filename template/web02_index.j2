@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEB02 - Ansible Infrastructure</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+        }
+        h1 {
+            color: #f5576c;
+            margin-bottom: 1rem;
+        }
+        .info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+        .info p {
+            margin: 0.5rem 0;
+            color: #333;
+        }
+        .badge {
+            display: inline-block;
+            background: #f5576c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 WEB02 Server</h1>
+        <p style="font-size: 1.2rem; color: #666;">Ansible Infrastructure Automation Project</p>
+        
+        <div class="info">
+            <p><strong>서버:</strong> WEB02</p>
+            <p><strong>IP:</strong> 192.168.56.22</p>
+            <p><strong>포트:</strong> {{ port | default('80') }}</p>
+            <p><strong>도메인:</strong> www.example.com</p>
+        </div>
+        
+        <div>
+            <span class="badge">Apache</span>
+            <span class="badge">Rocky Linux 9</span>
+            <span class="badge">Ansible Managed</span>
+        </div>
+        
+        <p style="margin-top: 2rem; color: #999; font-size: 0.9rem;">
+            Deployed with Ansible ❤️
+        </p>
+    </div>
+</body>
+</html>
