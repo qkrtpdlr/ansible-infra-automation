@@ -1,0 +1,18 @@
+<VirtualHost *:80>
+    ServerName wordpress.example.com
+    DocumentRoot /srv/web/wordpress
+    
+    <Directory /srv/web/wordpress>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+        DirectoryIndex index.php index.html
+    </Directory>
+    
+    <FilesMatch \.php$>
+        SetHandler "proxy:unix:/run/php-fpm/www.sock|fcgi://localhost"
+    </FilesMatch>
+    
+    ErrorLog /var/log/httpd/wordpress_error.log
+    CustomLog /var/log/httpd/wordpress_access.log combined
+</VirtualHost>

@@ -1,0 +1,150 @@
+---
+# WEB01 서버 설정 (Apache + WordPress + NFS)
+# 실행: ansible-playbook web1_setup.yml
+
+- name: Setup WEB01 Web Server
+  hosts: webservers
+  become: yes
+  
+  tasks:
+    - name: Install Apache and PHP packages
+      yum:
+        name:
+          - httpd
+          - mod_ssl
+          - php
+          - php-mysqlnd
+          - php-fpm
+          - php-json
+          - php-gd
+          - php-mbstring
+          - php-xml
+          - nfs-utils
+        state: present
+
+    - name: Create web directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: apache
+        group: apache
+        mode: '0755'
+      loop:
+        - /srv/web
+        - /srv/web/web01
+        - /srv/web/wordpress
+        - /srv/web/shared
+
+    - name: Configure Apache to listen on port 8080
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        line: 'Listen 8080'
+        insertafter: '^Listen 80'
+      notify: restart apache
+
+    - name: Create VirtualHost for WordPress (port 80)
+      template:
+        src: ../template/wp01_site2.conf.j2
+        dest: /etc/httpd/conf.d/wordpress.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: restart apache
+
+    - name: Create VirtualHost for web01 (port 8080)
+      template:
+        src: ../template/web01_site1.conf.j2
+        dest: /etc/httpd/conf.d/web01.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: restart apache
+
+    - name: Create index.html for web01
+      template:
+        src: ../template/web01_index.j2
+        dest: /srv/web/web01/index.html
+        owner: apache
+        group: apache
+        mode: '0644'
+
+    - name: Mount NFS share
+      mount:
+        path: /srv/web/shared
+        src: "{{ nfs_server }}:/srv/nfs/shared"
+        fstype: nfs
+        opts: defaults,_netdev
+        state: mounted
+
+    - name: Configure SELinux for Apache
+      seboolean:
+        name: "{{ item }}"
+        state: yes
+        persistent: yes
+      loop:
+        - httpd_can_network_connect
+        - httpd_can_network_connect_db
+        - httpd_use_nfs
+
+    - name: Open HTTP ports in firewall
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop:
+        - 80/tcp
+        - 8080/tcp
+
+    - name: Enable and start Apache
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Download WordPress
+      get_url:
+        url: https://wordpress.org/latest.tar.gz
+        dest: /tmp/wordpress.tar.gz
+        mode: '0644'
+
+    - name: Extract WordPress
+      unarchive:
+        src: /tmp/wordpress.tar.gz
+        dest: /tmp/
+        remote_src: yes
+        creates: /tmp/wordpress
+
+    - name: Copy WordPress files
+      synchronize:
+        src: /tmp/wordpress/
+        dest: /srv/web/wordpress/
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Set WordPress ownership
+      file:
+        path: /srv/web/wordpress
+        state: directory
+        owner: apache
+        group: apache
+        recurse: yes
+
+    - name: Create WordPress configuration
+      template:
+        src: ../template/wp-config.php.j2
+        dest: /srv/web/wordpress/wp-config.php
+        owner: apache
+        group: apache
+        mode: '0640'
+
+    - name: Display URLs
+      debug:
+        msg:
+          - "WordPress: http://{{ ansible_host }}/wordpress"
+          - "Web01: http://{{ ansible_host }}:8080"
+
+  handlers:
+    - name: restart apache
+      systemd:
+        name: httpd
+        state: restarted
