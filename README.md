@@ -476,11 +476,3 @@ backend http_back
 | MariaDB | RDS Multi-AZ |
 | BIND DNS | Route 53 |
 | Firewalld | Security Groups |
-
----
-
-## 📧 Contact
-
-- **Email**: rlagudfo1223@gmail.com
-- **GitHub**: https://github.com/qkrtpdlr
-- **프로젝트**: https://github.com/qkrtpdlr/ansible-infra-automation
